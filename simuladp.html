@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plataforma de Estudos & Simulado Interativo - 3ª Série EM</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --secondary: #06b6d4;
+      --bg-dark: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --correct: #10b981;
+      --incorrect: #ef4444;
+      --accent: #f59e0b;
+      --border: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: 280px;
+      background-color: #0b1120;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      height: 100vh;
+      z-index: 100;
+    }
+
+    .brand {
+      padding: 24px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    nav {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nav-item {
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background-color: rgba(79, 70, 229, 0.15);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      border-left: 4px solid var(--primary);
+    }
+
+    /* Main Content Area */
+    main {
+      margin-left: 280px;
+      flex: 1;
+      padding: 32px;
+      max-width: 1200px;
+    }
+
+    .view-section {
+      display: none;
+    }
+
+    .view-section.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .header-title {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .header-desc {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Cards Layout */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Learning Area Styles */
+    .module-card {
+      margin-bottom: 20px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .module-header {
+      padding: 18px 24px;
+      background-color: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .module-content {
+      padding: 24px;
+      line-height: 1.7;
+      color: #cbd5e1;
+    }
+
+    .module-content h4 {
+      color: var(--secondary);
+      margin: 16px 0 8px 0;
+    }
+
+    .module-content ul {
+      margin-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .macete-box {
+      background-color: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+      font-size: 0.95rem;
+      color: #fde68a;
+    }
+
+    /* Exam / Simulado Styles */
+    .exam-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--card-bg);
+      padding: 16px 24px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      position: sticky;
+      top: 20px;
+      z-index: 10;
+    }
+
+    .timer {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-mono: monospace;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background-color: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .question-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .question-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      background-color: rgba(79, 70, 229, 0.2);
+      color: #a5b4fc;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .text-support {
+      background-color: rgba(0, 0, 0, 0.25);
+      border-left: 3px solid var(--secondary);
+      padding: 14px;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      margin-bottom: 16px;
+      font-style: italic;
+      color: #94a3b8;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .option-item {
+      background-color: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+
+    .option-item:hover {
+      background-color: rgba(255, 255, 255, 0.07);
+      border-color: #475569;
+    }
+
+    .option-item.selected {
+      border-color: var(--primary);
+      background-color: rgba(79, 70, 229, 0.15);
+    }
+
+    .option-item.correct {
+      background-color: rgba(16, 185, 129, 0.2) !important;
+      border-color: var(--correct) !important;
+      color: #a7f3d0;
+    }
+
+    .option-item.incorrect {
+      background-color: rgba(239, 68, 68, 0.2) !important;
+      border-color: var(--incorrect) !important;
+      color: #fecaca;
+    }
+
+    .option-prefix {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .explanation {
+      margin-top: 16px;
+      padding: 14px;
+      background-color: rgba(6, 182, 212, 0.1);
+      border-left: 3px solid var(--secondary);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      display: none;
+      color: #cff4fc;
+    }
+
+    /* Actions & Buttons */
+    .btn {
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(255,255,255,0.05);
+    }
+
+    /* Score Circle */
+    .score-container {
+      text-align: center;
+      padding: 32px 0;
+    }
+
+    .score-number {
+      font-size: 4rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    @media (max-width: 768px) {
+      aside {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+      body {
+        flex-direction: column;
+      }
+      main {
+        margin-left: 0;
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="brand">
+      <div class="brand-icon">S</div>
+      <span>Simulado 3ª Série</span>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="switchView('dashboard')">📊 Dashboard</div>
+      <div class="nav-item" onclick="switchView('learning')">📚 Central de Estudo</div>
+      <div class="nav-item" onclick="switchView('exam')">📝 Realizar Simulado</div>
+      <div class="nav-item" onclick="switchView('performance')">📈 Desempenho</div>
+    </nav>
+  </aside>
+
+  <main>
+    <!-- VIEW: DASHBOARD -->
+    <section id="dashboard" class="view-section active">
+      <h1 class="header-title">Bem-vindo(a) à sua Preparação</h1>
+      <p class="header-desc">Plataforma focada na revisão dos 4 grandes conteúdos da 3ª Série do Ensino Médio.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">📖 Língua Portuguesa</div>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Período Simples/Composto, Sintaxe e Concordância Nominal (bastante, meio, obrigado, necessário).</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🇪🇸 Língua Espanhola</div>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Imperativo (afirmativo/negativo), Verbos Irregulares, Pronomes CD e Locuções de Lugar.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🎨 Arte Contemporânea</div>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Artistas indígenas e maranhenses (Zahy Guajajara, Gê Viana, Thiago Martins) e Mediação Cultural.</p>
+        </div>
+        <div class="card">
+          <div class="card-title">🍎 Saúde & Sociedade</div>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">Transtornos Alimentares na juventude, compulsão, imagem corporal e pressões culturais.</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 24px; text-align: center; padding: 40px;">
+        <h2>Pronto para testar seus conhecimentos?</h2>
+        <p style="color: var(--text-muted); margin: 12px 0 24px 0;">Sua prova conta com 60 questões inéditas elaboradas no padrão Ensino Médio/ENEM.</p>
+        <button class="btn" onclick="switchView('exam')">Iniciar Simulado de 60 Questões</button>
+      </div>
+    </section>
+
+    <!-- VIEW: CENTRAL DE APRENDIZAGEM -->
+    <section id="learning" class="view-section">
+      <h1 class="header-title">Central de Aprendizagem & Resumos</h1>
+      <p class="header-desc">Estude os conceitos essenciais e macetes antes de resolver os exercícios.</p>
+
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule('m1')">
+          <span>Module 1: Português - Período Simples e Concordância Nominal</span>
+          <span>▼</span>
+        </div>
+        <div id="m1" class="module-content">
+          <h4>Período Simples vs. Composto</h4>
+          <p>• <b>Frase:</b> Possui sentido completo (pode não ter verbo).</p>
+          <p>• <b>Oração:</b> Estruturada ao redor de um verbo ou locução verbal.</p>
+          <p>• <b>Período Simples:</b> Formado por <b>apenas uma oração</b> (um único verbo ou locução verbal).</p>
+          <p>• <b>Período Composto:</b> Formado por <b>duas ou mais orações</b>.</p>
+          <div class="macete-box">💡 <b>Macete:</b> Conte os verbos! 1 verbo/locução = Período Simples. 2+ verbos = Período Composto.</div>
+
+          <h4>Concordância Nominal Especial</h4>
+          <p>• <b>Obrigado / Obrigada:</b> Concorda com quem fala (homem diz obrigado; mulher diz obrigada).</p>
+          <p>• <b>Bastante / Bastantes:</b> Se acompanhar substantivo, equivale a "muitos/muitas" e varia ("bastantes alunos"). Se modificar verbo/adjetivo, é advérbio e não varia ("estudou bastante").</p>
+          <p>• <b>Meio / Meia:</b> Significa "metade" → varia ("meia garrafa"). Significa "um pouco" → advérbio, não varia ("ela está meio cansada").</p>
+          <p>• <b>É necessário / É necessária:</b> Sem artigo = "É necessário paciência". Com artigo definido = "É necessária a paciência".</p>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule('m2')">
+          <span>Module 2: Espanhol - Imperativo, Pronombres y Lugar</span>
+          <span>▼</span>
+        </div>
+        <div id="m2" class="module-content">
+          <h4>1. Imperativo y Pronombres Directos (Lo, La, Los, Las)</h4>
+          <p>• <b>Imperativo Afirmativo + Pronombres:</b> El pronombre se une <i>al final</i> del verbo (Enclisis). Ej: <i>¡Cómpralo! / ¡Léela!</i></p>
+          <p>• <b>Imperativo Negativo + Pronombres:</b> El pronombre se coloca <i>antes</i> del verbo. Ej: <i>No lo compres. / No la leas.</i></p>
+
+          <h4>2. Verbos Irregulares en Imperativo</h4>
+          <p>• Decir → <b>Di</b> | Hacer → <b>Haz</b> | Ir → <b>Ve</b> | Poner → <b>Pon</b> | Salir → <b>Sal</b> | Tener → <b>Ten</b> | Venir → <b>Ven</b> | Ser → <b>Sé</b>.</p>
+
+          <h4>3. Ubicación y Locuciones de Lugar</h4>
+          <p>• <b>Adverbios:</b> Aquí, ahí, allí, cerca, lejos, arriba, abajo, delante, detrás.</p>
+          <p>• <b>Locuciones:</b> Encima de, debajo de, al lado de, enfrente de, cerca de, lejos de.</p>
+          <div class="macete-box">💡 <b>Ejemplo Combinado:</b> <i>"Ponlo encima de la mesa"</i> (Afirmativo + Pronombre + Locución).</div>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule('m3')">
+          <span>Module 3: Arte Contemporânea Indígena e Maranhense</span>
+          <span>▼</span>
+        </div>
+        <div id="m3" class="module-content">
+          <h4>1. Arte Indígena Contemporânea</h4>
+          <p>Amplia o conceito tradicional de artesanato. Utiliza fotografia, vídeo, performance e arte digital para discutir ancestralidade, território, meio ambiente e resistência política no presente.</p>
+
+          <h4>2. Artistas de Destaque</h4>
+          <p>• <b>Zahy Guajajara:</b> Do povo Tentehar/Guajajara (Maranhão). Atua com performance e audiovisual. Na obra <i>Aikû'ê zepé [Ainda r-existo]</i>, articula corpo, natureza e identidade.</p>
+          <p>• <b>Gê Viana:</b> Nascida em Santa Luzia (MA). Atua com fotomontagem, fotoperformance e arquivo, questionando apagamentos históricos e reconstruindo narrativas.</p>
+          <p>• <b>Thiago Martins de Melo:</b> Nascido em São Luís (MA). Trabalha com pintura expansiva, escultura e vídeo-animação, abordando temas mitológicos, políticos e sociais.</p>
+
+          <h4>3. Mediação Cultural</h4>
+          <p>Não é mera explicação de quadros. É a criação de diálogos entre a obra, o público e o contexto urbano (ruas, praças, museus como espaços de aprendizagem compartilhada).</p>
+        </div>
+      </div>
+
+      <div class="module-card">
+        <div class="module-header" onclick="toggleModule('m4')">
+          <span>Module 4: Transtornos Alimentares entre os Jovens</span>
+          <span>▼</span>
+        </div>
+        <div id="m4" class="module-content">
+          <h4>1. Diferença Conceitual Chave</h4>
+          <p>• <b>Comer Transtornado:</b> Episódios pontuais de desordem na alimentação (beliscar constante, pular refeições isoladas).</p>
+          <p>• <b>Transtorno Alimentar:</b> Condição diagnóstica caracterizada por <b>frequência e intensidade elevadas</b> (Anorexia, Bulimia, Compulsão Alimentar).</p>
+
+          <h4>2. Dados e Aspectos Culturais</h4>
+          <p>• No Brasil, estima-se cerca de 10 milhões de pessoas afetadas, sendo a <b>compulsão alimentar</b> o tipo mais comum.</p>
+          <p>• Pesquisas indicam maior prevalência em meninas (~30%) do que em meninos (~17%).</p>
+          <p>• A cultura e a exigência por padrões estéticos funcionam como gatilhos sociais para a negação do próprio corpo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW: EXAM (SIMULADO) -->
+    <section id="exam" class="view-section">
+      <div class="exam-header">
+        <div>
+          <h2 style="font-size: 1.2rem;">Simulado Completo (60 Questões)</h2>
+          <span style="color: var(--text-muted); font-size: 0.85rem;" id="progress-text">0 de 60 respondidas</span>
+        </div>
+        <div class="timer" id="timer">02:00:00</div>
+      </div>
+
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterQuestions('all')">Todas (60)</button>
+        <button class="filter-btn" onclick="filterQuestions('portugues')">Português (15)</button>
+        <button class="filter-btn" onclick="filterQuestions('espanhol')">Espanhol (15)</button>
+        <button class="filter-btn" onclick="filterQuestions('arte')">Arte Contemporânea (15)</button>
+        <button class="filter-btn" onclick="filterQuestions('saude')">Transtornos Alimentares (15)</button>
+      </div>
+
+      <div id="questions-container">
+        <!-- Questions render dynamically via JS -->
+      </div>
+
+      <div style="margin-top: 32px; display: flex; justify-content: space-between; align-items: center;">
+        <button class="btn btn-secondary" onclick="resetExam()">Reiniciar Simulado</button>
+        <button class="btn" onclick="finishExam()">Finalizar e Ver Resultado</button>
+      </div>
+    </section>
+
+    <!-- VIEW: PERFORMANCE -->
+    <section id="performance" class="view-section">
+      <h1 class="header-title">Seu Desempenho</h1>
+      <p class="header-desc">Confira as suas estatísticas gerais após o término da prova.</p>
+
+      <div class="card score-container">
+        <h3>Nota Final</h3>
+        <div class="score-number" id="final-score">0 / 60</div>
+        <p id="score-message" style="color: var(--text-muted); margin-top: 8px;">Conclua o simulado para gerar o seu relatório detalhado.</p>
+      </div>
+
+      <div class="grid-2" style="margin-top: 24px;">
+        <div class="card">
+          <div class="card-title">Português</div>
+          <p id="score-portugues" style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">-</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Espanhol</div>
+          <p id="score-espanhol" style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">-</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Arte Contemporânea</div>
+          <p id="score-arte" style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">-</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Transtornos Alimentares</div>
+          <p id="score-saude" style="font-size: 1.5rem; font-weight: 700; color: var(--secondary);">-</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // DATA BASE DE QUESTÕES (60 Questões Nível EM)
+    const questions = [
+      // ---------------- PORTUGUÊS (1-15) ----------------
+      {
+        id: 1,
+        cat: "portugues",
+        tag: "Português - Período Sintático",
+        text: "Assinale a alternativa que apresenta um PERÍODO SIMPLES:",
+        options: [
+          "O aluno estudou e fez a atividade com bastante atenção.",
+          "Os novos estudantes continuam muito focados nas avaliações finais.",
+          "Quando o professor chegou, todos os alunos já haviam saído.",
+          "Desejo que todos vocês tenham um excelente resultado no simulado.",
+          "A professora explicou o conteúdo, mas poucos compreenderam."
+        ],
+        ans: 1,
+        exp: "A opção B contém apenas uma locução verbal ('continuam focados' / 'continuam'), constituindo uma única oração e, portanto, um Período Simples."
+      },
+      {
+        id: 2,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Considere a frase: 'Ela ficou ____ confusa com as explicações e comprou ____ revistas para estudar'. A sequência correta para preencher as lacunas é:",
+        options: [
+          "meia - bastantes",
+          "meio - bastante",
+          "meio - bastantes",
+          "meia - bastante",
+          "meios - bastantes"
+        ],
+        ans: 2,
+        exp: "'Meio' funcionando como advérbio ('um pouco') é invariável. 'Bastantes' acompanha o substantivo no plural 'revistas' (equivale a 'muitas revistas')."
+      },
+      {
+        id: 3,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Examine o emprego das palavras 'obrigado' e 'necessário'. Assinale a alternativa correta quanto à norma-padrão:",
+        options: [
+          "A aluna disse: 'Muito obrigado pela oportunidade!'.",
+          "É necessária paciência para resolver questões complexas.",
+          "É necessária a presença de todos os candidatos no local.",
+          "As servidoras disseram obrigado ao diretor do colégio.",
+          "É necessário a autorização dos pais para o passeio."
+        ],
+        ans: 2,
+        exp: "Diante do artigo definido 'a' ('a presença'), o adjetivo concorda no feminino: 'É necessária a presença'."
+      },
+      {
+        id: 4,
+        cat: "portugues",
+        tag: "Português - Período Sintático",
+        text: "Qual das opções abaixo possui DUAS orações (Período Composto)?",
+        options: [
+          "Os jovens de hoje enfrentam desafios contemporâneos complexos.",
+          "Preciso de silêncio para organizar meus estudos diários.",
+          "O artista maranhense produziu uma bela obra para a exposição.",
+          "Nós lemos os textos e produzimos um resumo completo.",
+          "A leitura atenta dos enunciados evita erros desnecessários."
+        ],
+        ans: 3,
+        exp: "'lemos' (1) e 'produzimos' (2) constituem dois verbos e duas orações, configurando período composto."
+      },
+      {
+        id: 5,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Assinale a opção em que a concordância do termo 'bastante' está INCORRETA:",
+        options: [
+          "Havia bastantes dúvidas sobre o regulamento do exame.",
+          "Eles estudaram bastante para a avaliação de espanhol.",
+          "As alunas estavam bastantes motivadas com os resultados.",
+          "Foram apresentadas bastantes propostas para a feira de ciências.",
+          "Existem bastantes razões para manter o foco nos estudos."
+        ],
+        ans: 2,
+        exp: "Em 'estavam bastante motivadas', a palavra modifica um adjetivo ('motivadas'), funcionando como advérbio de intensidade (invariável)."
+      },
+      {
+        id: 6,
+        cat: "portugues",
+        tag: "Português - Frase, Oração e Período",
+        text: "'Atenção, pessoal! Silêncio total durante a prova!'. Quanto à classificação sintática, o trecho anterior é:",
+        options: [
+          "Um período composto por coordenação.",
+          "Uma oração sem sujeito centrada no verbo haver.",
+          "Uma frase nominal, pois possui sentido completo sem verbo.",
+          "Um período simples com verbo oculto.",
+          "Uma locução verbal imperativa."
+        ],
+        ans: 2,
+        exp: "Não há presença de verbo no trecho, mas há sentido completo, classificando-se como Frase Nominal."
+      },
+      {
+        id: 7,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Assinale a alternativa que completa corretamente as lacunas: 'É ____ prudência. No entanto, foi ____ a entrada da aluna.'",
+        options: [
+          "necessário - proibida",
+          "necessária - proibido",
+          "necessário - proibido",
+          "necessária - proibida",
+          "necessários - proibidas"
+        ],
+        ans: 0,
+        exp: "'prudência' sem artigo pede 'necessário'. 'a entrada' com artigo feminino pede 'proibida'."
+      },
+      {
+        id: 8,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "A frase em que a concordância nominal atende plenamente à norma-padrão é:",
+        options: [
+          "A candidata mesmo confirmou sua inscrição na secretaria.",
+          "As alunas mesmas organizaram o grupo de estudos.",
+          "Ela ficou meia chateada com a nota da avaliação.",
+          "Seguem anexo os relatórios solicitados pela coordenação.",
+          "Elas estão bastantes preparadas para a prova final."
+        ],
+        ans: 1,
+        exp: "'Mesmas' concorda com o pronome 'As alunas' (feminino plural)."
+      },
+      {
+        id: 9,
+        cat: "portugues",
+        tag: "Português - Sintaxe do Período",
+        text: "Indique o número de orações no período: 'Chegamos cedo, organizamos as carteiras e começamos a resolver o simulado.'",
+        options: ["1", "2", "3", "4", "5"],
+        ans: 2,
+        exp: "Há 3 verbos/estruturas verbais: 'Chegamos' (1), 'organizamos' (2), 'começamos a resolver' (3 - locução verbal)."
+      },
+      {
+        id: 10,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Assinale a alternativa que preenche corretamente: 'Comprei ____ garrafa de suco e comi ____ maçã.'",
+        options: [
+          "meio - meio",
+          "meia - meia",
+          "meia - meio",
+          "meio - meia",
+          "meios - meias"
+        ],
+        ans: 1,
+        exp: "Ambos os usos são numerais fracionários (metade), devendo concordar com os substantivos femininos 'garrafa' e 'maçã'."
+      },
+      {
+        id: 11,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Assinale a alternativa INCORRETA quanto ao uso da palavra 'obrigado':",
+        options: [
+          "O jovem disse: 'Muito obrigado pelo apoio'.",
+          "A garota agradeceu com um simpático 'Muito obrigada'.",
+          "As diretoras disseram 'Muito obrigadas' ao término da reunião.",
+          "A aluna respondeu 'Muito obrigado' ao receber a menção honrosa.",
+          "Os estudantes disseram 'Muito obrigados' aos professores."
+        ],
+        ans: 3,
+        exp: "Uma falante do sexo feminino ('a aluna') deve empregar obrigatoriamente a forma 'obrigada'."
+      },
+      {
+        id: 12,
+        cat: "portugues",
+        tag: "Português - Período Sintático",
+        text: "Assinale a frase que se classifica como Período Simples:",
+        options: [
+          "O professor disse que a prova seria adiada.",
+          "Embora estudasse muito, sentia-se inseguro.",
+          "Todos os formandos tiraram fotos na cerimônia de graduação.",
+          "O garoto correu, mas não pegou o ônibus.",
+          "Quem sabe a resposta deve levantar a mão."
+        ],
+        ans: 2,
+        exp: "'tiraram' é o único verbo presente na oração da alternativa C."
+      },
+      {
+        id: 13,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "'A médica receitou ____ dosagem de remédio, pois a paciente parecia ____ cansada.'",
+        options: [
+          "meia - meio",
+          "meio - meia",
+          "meia - meia",
+          "meio - meio",
+          "meias - meio"
+        ],
+        ans: 0,
+        exp: "'Meia dosagem' (metade da dosagem - numeral) e 'meio cansada' (um pouco cansada - advérbio invariável)."
+      },
+      {
+        id: 14,
+        cat: "portugues",
+        tag: "Português - Concordância Nominal",
+        text: "Na frase: 'Para manter a saúde mental, é ____ paciência e são ____ boas leituras', as lacunas são preenchidas por:",
+        options: [
+          "necessária - necessárias",
+          "necessário - necessárias",
+          "necessário - necessário",
+          "necessária - necessário",
+          "necessários - necessárias"
+        ],
+        ans: 1,
+        exp: "Na 1ª lacuna não há artigo antes de 'paciência' (é necessário). Na 2ª lacuna, o adjetivo concorda com 'boas leituras' (são necessárias)."
+      },
+      {
+        id: 15,
+        cat: "portugues",
+        tag: "Português - Período Sintático",
+        text: "Diferencie Frase de Oração. Assinale a afirmação verdadeira:",
+        options: [
+          "Toda frase é obrigatoriamente uma oração.",
+          "Toda oração precisa conter ao menos um verbo ou locução verbal.",
+          "As frases nominais são formadas por dois ou mais verbos.",
+          "O período simples é composto por pelo menos duas orações.",
+          "A concordância nominal aplica-se apenas aos verbos da oração."
+        ],
+        ans: 1,
+        exp: "A definição gramatical de oração exige fundamentalmente a presença de um verbo ou locução verbal."
+      },
+
+      // ---------------- ESPANHOL (16-30) ----------------
+      {
+        id: 16,
+        cat: "espanhol",
+        tag: "Espanhol - Imperativo y Pronombres",
+        text: "Transforma la orden afirmativa a la forma NEGATIVA correcta: '¡Cómpralo ahora mismo!'",
+        options: [
+          "¡No cómpralo ahora mismo!",
+          "¡No lo compres ahora mismo!",
+          "¡No compras lo ahora mismo!",
+          "¡No comprálo ahora mismo!",
+          "¡No lo compra ahora mismo!"
+        ],
+        ans: 1,
+        exp: "En el imperativo negativo, el pronombre complemento se coloca ANTES del verbo conjugado en subjuntivo: 'No lo compres'."
+      },
+      {
+        id: 17,
+        cat: "espanhol",
+        tag: "Espanhol - Verbos Irregulares",
+        text: "Indica la forma irregular correcta del verbo HACER en Imperativo Afirmativo (tú):",
+        options: ["Hace", "Hagas", "Haz", "Hacé", "Haci"],
+        ans: 2,
+        exp: "La forma irregular de Imperativo Afirmativo para la segunda persona (tú) del verbo 'hacer' es 'Haz'."
+      },
+      {
+        id: 18,
+        cat: "espanhol",
+        tag: "Espanhol - Locuciones de Lugar",
+        text: "Elige la opción que combina correctamente el verbo en imperativo, el pronombre directo y la locución de lugar: '____ (Poner / el libro) ____ la mesa.'",
+        options: [
+          "Ponlo / encima de",
+          "Pónlo / abajo de",
+          "No lo pon / cerca",
+          "Poneslo / detrás",
+          "Ponla / dentro de"
+        ],
+        ans: 0,
+        exp: "'Ponlo' (Imperativo de poner + pronombre lo para 'el libro') + 'encima de' (locución de lugar)."
+      },
+      {
+        id: 19,
+        cat: "espanhol",
+        tag: "Espanhol - Pronombres de Complemento Directo",
+        text: "Sustituye el sustantivo destacado por el pronombre directo adecuado: 'María lee **las revistas** en la biblioteca.'",
+        options: [
+          "María los lee en la biblioteca.",
+          "María las lee en la biblioteca.",
+          "María la lee en la biblioteca.",
+          "María le lee en la biblioteca.",
+          "María lo lee en la biblioteca."
+        ],
+        ans: 1,
+        exp: "'Las revistas' es un sustantivo femenino plural, sustituido por el pronombre 'las'."
+      },
+      {
+        id: 20,
+        cat: "espanhol",
+        tag: "Espanhol - Imperativo Negativo",
+        text: "¿Cuál es la forma correcta del Imperativo Negativo para el verbo DECIR (tú)?",
+        options: [
+          "No di la verdad.",
+          "No dices la verdad.",
+          "No digas la verdad.",
+          "No dejas la verdad.",
+          "No diles la verdad."
+        ],
+        ans: 2,
+        exp: "El imperativo negativo del verbo 'decir' para 'tú' utiliza la forma del presente de subjuntivo: 'No digas'."
+      },
+      {
+        id: 21,
+        cat: "espanhol",
+        tag: "Espanhol - Adverbios de Lugar",
+        text: "Señala la opción que contiene un adverbio que indica proximidad:",
+        options: ["Lejos", "Allí", "Cerca", "Detrás", "Fuera"],
+        ans: 2,
+        exp: "'Cerca' es el adverbio de lugar que indica proximidad/perto."
+      },
+      {
+        id: 22,
+        cat: "espanhol",
+        tag: "Espanhol - Imperativo Irregular",
+        text: "La forma de imperativo afirmativo (tú) para el verbo SALIR es:",
+        options: ["Sale", "Salgas", "Sal", "Salga", "Salte"],
+        ans: 2,
+        exp: "El verbo 'salir' tiene la forma corta e irregular 'Sal' en imperativo afirmativo (tú)."
+      },
+      {
+        id: 23,
+        cat: "espanhol",
+        tag: "Espanhol - Imperativo con Pronombres",
+        text: "Completa la frase con la estructura correcta: 'Las frutas están sucias. ____ (Lavar / ellas) antes de comer.'",
+        options: [
+          "No la laves",
+          "Lávalas",
+          "Lávalos",
+          "Las lava",
+          "Lava las"
+        ],
+        ans: 1,
+        exp: "Imperativo afirmativo de 'lavar' + pronombre 'las' unido al final: 'Lávalas' (con acento gráfico por regla de esdrújulas)."
+      },
+      {
+        id: 24,
+        cat: "espanhol",
+        tag: "Espanhol - Verbo TENER",
+        text: "Indica la orden correcta expresada a un compañero de clase (tú): '¡____ cuidado al cruzar la calle!'",
+        options: ["Tenga", "Tienes", "Ten", "Tengas", "Tiene"],
+        ans: 2,
+        exp: "La segunda persona afirmativa del verbo irregular 'tener' es 'Ten'."
+      },
+      {
+        id: 25,
+        cat: "espanhol",
+        tag: "Espanhol - Locuciones Prepositivas de Lugar",
+        text: "Traduce al español la frase: 'El cuaderno está encima de la mesa.'",
+        options: [
+          "El cuaderno está debajo de la mesa.",
+          "El cuaderno está encima de la mesa.",
+          "El cuaderno está al lado de la mesa.",
+          "El cuaderno está enfrente de la mesa.",
+          "El cuaderno está detrás de la mesa."
+        ],
+        ans: 1,
+        exp: "'Encima de' equivale exactamente a 'em cima de' en portugués."
+      },
+      {
+        id: 26,
+        cat: "espanhol",
+        tag: "Espanhol - Imperativo Negativo + Pronombres",
+        text: "¿Cuál es la forma negativa de '¡Ábrela!' (la puerta)?",
+        options: [
+          "¡No la abras!",
+          "¡No ábrela!",
+          "¡No abres la!",
+          "¡No las abras!",
+          "¡No abrala!"
+        ],
+        ans: 0,
+        exp: "En la forma negativa, el pronombre 'la' precede al verbo 'abras': 'No la abras'."
+      },
+      {
+        id: 27,
+        cat: "espanhol",
+        tag: "Espanhol - Verbo IR / SER",
+        text: "Las formas irregulares de imperativo afirmativo (tú) para IR y SER son, respectivamente:",
+        options: [
+          "Va / Sé",
+          "Ve / Sé",
+          "Vaya / Sea",
+          "Ve / Seis",
+          "Va / Si"
+        ],
+        ans: 1,
+        exp: "Ir → 'Ve' (ej. Ve a la biblioteca) y Ser → 'Sé' (ej. Sé responsable)."
+      },
+      {
+        id: 28,
+        cat: "espanhol",
+        tag: "Espanhol - Adverbios y Locuciones",
+        text: "Completa la frase: 'Mi mochila no está aquí, está ____ de la silla.'",
+        options: ["cerca", "debajo", "lejos", "fuera", "arriba"],
+        ans: 1,
+        exp: "La locución exacta requiere 'debajo de' (embaixo de)."
+      },
+      {
+        id: 29,
+        cat: "espanhol",
+        tag: "Espanhol - Sustitución Pronominal",
+        text: "Sustituye correctamente: 'Guarda **los cuadernos** en la mochila' -> Imperativo afirmativo con pronombre:",
+        options: [
+          "Guárdalos en la mochila.",
+          "No los guardes en la mochila.",
+          "Los guarda en la mochila.",
+          "Guárdalas en la mochila.",
+          "Guarda los en la mochila."
+        ],
+        ans: 0,
+        exp: "'Guárdalos' une el verbo 'guarda' con el pronombre 'los' (los cuadernos)."
+      },
+      {
+        id: 30,
+        cat: "espanhol",
+        tag: "Espanhol - Verbo PONER / Imperativo Negativo",
+        text: "Selecciona la forma negativa equivalente a '¡Ponlo aquí!':",
+        options: [
+          "¡No lo pongas aquí!",
+          "¡No ponlo aquí!",
+          "¡No pones esto aquí!",
+          "¡No lo pon aquí!",
+          "¡No pongas lo aquí!"
+        ],
+        ans: 0,
+        exp: "Imperativo negativo de 'poner' (tú) = 'no pongas'. Con pronombre = 'No lo pongas'."
+      },
+
+      // ---------------- ARTE CONTEMPORÂNEA (31-45) ----------------
+      {
+        id: 31,
+        cat: "arte",
+        tag: "Arte Contemporânea Indígena",
+        text: "A Arte Indígena Contemporânea amplia as visões tradicionais sobre a produção dos povos originários porque:",
+        options: [
+          "Abandona completamente as tradições e rejeita a memória dos ancestrais.",
+          "Utiliza novas linguagens (fotografia, vídeo, performance) para articular ancestralidade e questões do presente.",
+          "Limita-se à produção de artesanato e objetos utilitários para feiras locais.",
+          "Copia exclusivamente os modelos estéticos europeus e norte-americanos.",
+          "Proíbe a utilização de tecnologias digitais nas criações artísticas."
+        ],
+        ans: 1,
+        exp: "A arte indígena contemporânea combina ancestralidade e linguagens atuais para discutir identidade, território e resistência no presente."
+      },
+      {
+        id: 32,
+        cat: "arte",
+        tag: "Arte Maranhense - Zahy Guajajara",
+        text: "Na obra 'Aikû'ê zepé [Ainda r-existo]', a artista maranhense Zahy Guajajara explora principalmente a relação entre:",
+        options: [
+          "Escultura clássica em mármore e arquitetura moderna.",
+          "Corpo, natureza, identidade indígena e resistência ancestral.",
+          "Pintura a óleo europeia e abstração geométrica.",
+          "Design industrial e produção em massa de bens de consumo.",
+          "Fotografia jornalística sem intencionalidade poética."
+        ],
+        ans: 1,
+        exp: "Zahy Guajajara utiliza a performance e a linguagem audiovisual articulando seu próprio corpo, a natureza e a ancestralidade Guajajara."
+      },
+      {
+        id: 33,
+        cat: "arte",
+        tag: "Arte Maranhense - Gê Viana",
+        text: "A prática artística da maranhense Gê Viana destaca-se pelo uso da fotomontagem e da fotoperformance para:",
+        options: [
+          "Reproduzir fielmente retratos da elite colonial sem questionamentos.",
+          "Questionar apagamentos históricos e reconstruir narrativas sobre memória e território.",
+          "Desenvolver apenas registros documentais comerciais.",
+          "Criar imagens digitais abstratas desconectadas da realidade social.",
+          "Promover a destruição de arquivos históricos museológicos."
+        ],
+        ans: 1,
+        exp: "Gê Viana cruza imagens históricas e contemporâneas para tensionar representações e combater apagamentos de populações negras e indígenas."
+      },
+      {
+        id: 34,
+        cat: "arte",
+        tag: "Arte Contemporânea - Thiago Martins de Melo",
+        text: "O artista Thiago Martins de Melo, nascido em São Luís (MA), é reconhecido no cenário contemporâneo por suas obras que abordam:",
+        options: [
+          "Pinturas hiper-realistas de paisagens rurais sem conteúdo político.",
+          "Instalações e pinturas de forte carga mítica, religiosa, política e social.",
+          "Esculturas minimalistas e neutras destituídas de cor e significado.",
+          "Arte digital voltada exclusivamente para campanhas publicitárias.",
+          "Apenas técnicas tradicionais de restauração de igrejas barrocas."
+        ],
+        ans: 1,
+        exp: "Thiago Martins de Melo cria poéticas intensas que envolvem conflitos de terra, mitologia, religiosidade e crítica política social."
+      },
+      {
+        id: 35,
+        cat: "arte",
+        tag: "Mediação Cultural",
+        text: "No contexto das artes visuais, o conceito de MEDIAÇÃO CULTURAL define-se como:",
+        options: [
+          "A explicação rígida e única do significado definitivo de uma obra de arte.",
+          "A venda de obras de arte para colecionadores e grandes galerias comerciais.",
+          "A criação de processos de diálogo entre a obra, o artista, o contexto e o público.",
+          "A crítica negativa publicada em jornais sobre exposições de arte.",
+          "A fiscalização da entrada de visitantes em museus e centros culturais."
+        ],
+        ans: 2,
+        exp: "A mediação cultural busca provocar reflexões e construir pontes de sentido entre o público e a criação artística."
+      },
+      {
+        id: 36,
+        cat: "arte",
+        tag: "A Cidade como Espaço Educativo",
+        text: "Por que a cidade pode ser considerada um espaço de produção, circulação e aprendizagem artística?",
+        options: [
+          "Porque a arte só pode acontecer dentro de galerias pagas e fechadas.",
+          "Porque praças, muros, ruas e centros culturais urbanos promovem o acesso público e a vivência da diversidade cultural.",
+          "Porque os espaços urbanos substituem completamente a necessidade de escolas e professores.",
+          "Porque a arquitetura urbana impede o surgimento de manifestações populares.",
+          "Porque apenas monumentos históricos oficiais possuem valor pedagógico."
+        ],
+        ans: 1,
+        exp: "A cidade expande os locais de aprendizagem, transformando a vida cotidiana e os espaços públicos em locais de fricção poética e artística."
+      },
+      {
+        id: 37,
+        cat: "arte",
+        tag: "Arte Indígena - Conceitos",
+        text: "Qual das perguntas a seguir reflete a principal provocação da Arte Indígena Contemporânea?",
+        options: [
+          "Uma obra precisa parecer tradicional para ser reconhecida como arte indígena?",
+          "Por que os artistas indígenas não utilizam tinta a óleo?",
+          "A arte indígena deve se limitar ao passado pré-colombiano?",
+          "Por que os povos originários não produzem fotografias?",
+          "A arte contemporânea é incompatível com valores ancestrais?"
+        ],
+        ans: 0,
+        exp: "A produção atual desconstrói o estereótipo de que o artista indígena precisa produzir apenas peças artesanais tradicionais."
+      },
+      {
+        id: 38,
+        cat: "arte",
+        tag: "Exposição 'Maranhão: Terra Indígena'",
+        text: "A exposição 'Maranhão: Terra Indígena' destacou-se no Centro Cultural Vale Maranhão (CCVM) por apresentar:",
+        options: [
+          "Uma visão eurocêntrica e externa sobre os povos do Maranhão.",
+          "Uma curadoria colaborativa construída com a participação direta de representantes indígenas.",
+          "Apenas fotografias antigas do século XIX sem contextualização.",
+          "Uma coleção de peças artesanais sem identificação das etnias.",
+          "Obras produzidas exclusivamente por artistas estrangeiros."
+        ],
+        ans: 1,
+        exp: "A curadoria colaborativa permite que os próprios povos indígenas narrem suas cosmovisões, rituais e memórias."
+      },
+      {
+        id: 39,
+        cat: "arte",
+        tag: "Mediação Cultural - Prática",
+        text: "Um mediador cultural, ao apresentar uma obra contemporânea ao público, deve prioritariamente:",
+        options: [
+          "Impor sua visão pessoal como a única interpretação correta.",
+          "Formular perguntas abertas que estimulem o público a observar e refletir criticamente.",
+          "Proibir os visitantes de expressarem suas opiniões sobre o trabalho.",
+          "Decorar o texto do catálogo e repeti-lo de forma mecânica.",
+          "Apenas informar o preço de mercado da obra de arte."
+        ],
+        ans: 1,
+        exp: "O papel do mediador é instigar a reflexão crítica e a participação ativa do espectador na construção de sentidos."
+      },
+      {
+        id: 40,
+        cat: "arte",
+        tag: "Gê Viana - Fotomontagem",
+        text: "Ao combinar imagens do arquivo histórico com fotografias contemporâneas, a artista Gê Viana busca:",
+        options: [
+          "Apenas ornamentar o espaço expositivo das galerias.",
+          "Reescrever simbolicamente a história, ressaltando o protagonismo de corpos historicamente silenciados.",
+          "Demonstrar falhas técnicas na fotografia do século XIX.",
+          "Promover a venda de fotos antigas para colecionadores.",
+          "Negar a existência do passado colonial brasileiro."
+        ],
+        ans: 1,
+        exp: "A recontextualização de arquivos históricos permite disputar a memória e dar visibilidade a narrativas apagadas."
+      },
+      {
+        id: 41,
+        cat: "arte",
+        tag: "Linguagens Contemporâneas",
+        text: "Assinale a alternativa que contém APENAS linguagens utilizadas na Arte Contemporânea:",
+        options: [
+          "Fotografia, Instalação, Performance e Vídeo-arte.",
+          "Apenas Pintura a óleo sobre tela tradicional.",
+          "Marmoreio clássico e Iluminura medieval.",
+          "Afresco barroco e Escultura renascentista.",
+          "Tapeçaria teuto-românica e Mosaico bizantino."
+        ],
+        ans: 0,
+        exp: "A arte contemporânea caracteriza-se pela multiplicidade e hibridismo de suportes (performance, instalação, vídeo, fotografia, etc.)."
+      },
+      {
+        id: 42,
+        cat: "arte",
+        tag: "Zahy Guajajara - Origens",
+        text: "Zahy Guajajara é originária de qual território do Estado do Maranhão?",
+        options: [
+          "Quilombo Frechal em Mirinzal.",
+          "Reserva Indígena Cana Brava (Aldeia Colônia).",
+          "Comunidade de Alcântara.",
+          "Parque Nacional dos Lençóis Maranhenses.",
+          "Centro Histórico de São Luís."
+        ],
+        ans: 1,
+        exp: "Conforme registros do MASP, Zahy nasceu na aldeia Colônia, localizada na Reserva Indígena Cana Brava, no Maranhão."
+      },
+      {
+        id: 43,
+        cat: "arte",
+        tag: "Thiago Martins de Melo - Necrobrasiliana",
+        text: "A produção de Thiago Martins de Melo tensiona temas da história do Brasil frequentemente associados a:",
+        options: [
+          "Processos de violência de estado, lutas decoloniais e resistência popular.",
+          "Harmonia social plena e ausência de conflitos raciais.",
+          "Celebrar os heróis da historiografia oficial colonizadora.",
+          "Retratos bucólicos e pacíficos do cotidiano urbano.",
+          "Pinturas rupestres sem ligação com a atualidade."
+        ],
+        ans: 0,
+        exp: "Suas pinturas e animações denunciam a violência estrutural, o massacre dos povos da terra e o colonialismo histórico."
+      },
+      {
+        id: 44,
+        cat: "arte",
+        tag: "Mediação e Protagonismo",
+        text: "O que muda quando a própria pessoa indígena produz a narrativa sobre sua cultura na arte contemporânea?",
+        options: [
+          "A obra perde seu valor estético e torna-se um documento puramente político.",
+          "Desconstrói-se o olhar tutelado/exotizante do colonizador e afirma-se a auto-representação e a autonomia cultural.",
+          "A arte passa a ser compreendida apenas por integrantes da mesma etnia.",
+          "Aumenta-se o custo de produção das exposições nos museus.",
+          "A obra deixa de dialogar com os temas do presente."
+        ],
+        ans: 1,
+        exp: "O auto-protagonismo rompe com séculos de representações estereotipadas criadas por olhares externos."
+      },
+      {
+        id: 45,
+        cat: "arte",
+        tag: "Patrimônio e Cidade",
+        text: "Centros culturais, murais urbanos e festas populares maranhenses integram a cidade como:",
+        options: [
+          "Espaços meramente comerciais desprovidos de sentido pedagógico.",
+          "Lugares vivos de circulação, expressão e aprendizagem artística contínua.",
+          "Locais que devem proibir a manifestação de artistas jovens.",
+          "Zonas exclusivamente destinadas ao turismo internacional.",
+          "Espaços em que a arte contemporânea é proibida por lei."
+        ],
+        ans: 1,
+        exp: "O tecido urbano aproxima a arte do cotidiano das pessoas, democratizando o acesso e a produção cultural."
+      },
+
+      // ---------------- TRANSTORNOS ALIMENTARES (46-60) ----------------
+      {
+        id: 46,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Conceitos",
+        text: "Com base no texto de apoio sobre saúde na juventude, qual a diferença essencial entre 'comer transtornado' e 'transtorno alimentar'?",
+        options: [
+          "São termos sinônimos empregados para a mesma condição de saúde.",
+          "O comer transtornado envolve episódios pontuais; o transtorno alimentar exige critérios de elevada frequência e intensidade.",
+          "O transtorno alimentar atinge apenas crianças de até 5 anos de idade.",
+          "O comer transtornado é uma doença incurável sem possibilidade de tratamento.",
+          "Não há diferença, pois ambos decorrem exclusivamente de fatores genéticos."
+        ],
+        ans: 1,
+        exp: "Episódios pontuais (comer transtornado) podem acontecer ocasionalmente, enquanto o transtorno alimentar possui critérios diagnósticos de alta intensidade e frequência constante."
+      },
+      {
+        id: 47,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Dados Epidemiológicos",
+        text: "De acordo com dados de pesquisas citadas sobre transtornos alimentares entre os jovens, observa-se que:",
+        options: [
+          "Os meninos apresentam taxas de desordens alimentares superiores às das meninas.",
+          "Cerca de 30% das meninas pesquisadas apresentam algum tipo de desordem alimentar.",
+          "No Brasil, apenas 10 mil pessoas sofrem com transtornos alimentares.",
+          "A anorexia é a única desordem alimentar registrada no território nacional.",
+          "As desordens alimentares desapareceram completamente entre jovens de 6 a 18 anos."
+        ],
+        ans: 1,
+        exp: "A pesquisa na Espanha destacou que a desordem atinge cerca de 30% das meninas, contra 17% dos meninos."
+      },
+      {
+        id: 48,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Tipos Frequentes",
+        text: "Segundo o pesquisador Jônatas de Oliveira (USP), qual é o transtorno alimentar MAIS COMUM no Brasil?",
+        options: [
+          "Anorexia nervosa.",
+          "Bulimia nervosa.",
+          "Compulsão alimentar.",
+          "Vigorexia estrita.",
+          "Ortorexia puramente biológica."
+        ],
+        ans: 2,
+        exp: "O especialista destaca que a compulsão alimentar lidera em número de casos no contexto brasileiro."
+      },
+      {
+        id: 49,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Fatores Culturais",
+        text: "Qual é o papel da cultura no desenvolvimento de transtornos alimentares na adolescência?",
+        options: [
+          "A cultura protege os jovens contra pressões estéticas e julgamentos.",
+          "A cultura impõe padrões de beleza e imagem corporal, levando o indivíduo a tentar modificar seu peso de forma extrema.",
+          "A cultura influencia apenas a preferência por determinados temperos gastronômicos.",
+          "A cultura garante que todos os jovens tenham uma relação 100% saudável com o corpo.",
+          "Não existe qualquer relação entre padrões sociais e distúrbios da imagem corporal."
+        ],
+        ans: 1,
+        exp: "Padrões estéticos irreais impostos direta ou indiretamente pela sociedade estimulam a negação do próprio corpo."
+      },
+      {
+        id: 50,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Classificação",
+        text: "De acordo com o especialista entrevistado, os transtornos alimentares podem ser classificados em duas grandes categorias:",
+        options: [
+          "Infectagiosas e não infectagiosas.",
+          "Relacionadas à imagem corporal e não relacionadas à imagem corporal.",
+          "Hereditárias puras e ambientais puras.",
+          "Exclusivamente masculinas e exclusivamente femininas.",
+          "Agudas de infância e crônicas da terceira idade."
+        ],
+        ans: 1,
+        exp: "O texto explicita a divisão entre transtornos ligados à percepção da imagem corporal e aqueles desvinculados dessa questão."
+      },
+      {
+        id: 51,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Comportamentos",
+        text: "São exemplos de comportamentos alimentares desordenados apontados no texto:",
+        options: [
+          "Fazer refeições equilibradas em horários regulares todos os dias.",
+          "O constante beliscar de comidas ou a ausência de refeições por períodos muito extensos.",
+          "Ingerir quantidade adequada de água e praticar atividades físicas supervisionadas.",
+          "Manter o acompanhamento com profissionais de nutrição e psicologia.",
+          "Consumir frutas e vegetais diariamente nas refeições principais."
+        ],
+        ans: 1,
+        exp: "Desordens alimentares envolvem afastamento dos padrões saudáveis, como beliscar contínuo ou jejuns prolongados disfuncionais."
+      },
+      {
+        id: 52,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Tratamento",
+        text: "A respeito do tratamento dos transtornos alimentares, o estudo indica que:",
+        options: [
+          "Deve ser idêntico e padronizado para todos os pacientes, sem variações.",
+          "Requer um cuidado específico e multiprofissional para cada paciente, considerando suas particularidades.",
+          "Consiste apenas em dietas restritivas passadas por redes sociais.",
+          "Não exige acompanhamento médico ou psicológico.",
+          "Pode ser resolvido em poucas horas sem intervenção terapêutica."
+        ],
+        ans: 1,
+        exp: "Como as origens são multifatoriais, o tratamento exige abordagem individualizada e multidisciplinar."
+      },
+      {
+        id: 53,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Visão do Especialista",
+        text: "Segundo Jônatas de Oliveira, em muitos casos, o transtorno alimentar pode ser interpretado como:",
+        options: [
+          "Uma simples preferência alimentar passageira.",
+          "Uma forma de negação de si mesmo feita pelo indivíduo diante de pressões.",
+          "Um sinal de superioridade biológica e resistência física.",
+          "Uma escolha consciente para melhorar a performance esportiva.",
+          "Um comportamento sem qualquer impacto na saúde mental."
+        ],
+        ans: 1,
+        exp: "O subtítulo do artigo destaca a fala do pesquisador: o transtorno é, em muitos casos, uma forma de negação de si mesmo."
+      },
+      {
+        id: 54,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Prevalência Nacional",
+        text: "Estimativas apontadas no texto indicam que, no Brasil, o número de pessoas que apresentam algum tipo de transtorno alimentar chega a cerca de:",
+        options: ["100 mil pessoas.", "1 milhão de pessoas.", "10 milhões de pessoas.", "50 milhões de pessoas.", "500 mil pessoas."],
+        ans: 2,
+        exp: "O texto afirma explicitamente: 'No território nacional, os dados também são alarmantes, cerca de 10 milhões de pessoas apresentam algum tipo de transtorno alimentar'."
+      },
+      {
+        id: 55,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Autonomia e Percepção Social",
+        text: "Por que muitas vezes os indivíduos com transtornos alimentares são julgados socialmente como 'incapazes de ações autônomas'?",
+        options: [
+          "Porque perdem completamente a capacidade de comunicação verbal.",
+          "Porque seus comportamentos alimentares se repetem de maneira disfuncional e compulsiva.",
+          "Porque deixam de frequentar escolas e faculdades.",
+          "Porque recusam qualquer tipo de ajuda familiar desde o infância.",
+          "Porque os testes neurológicos mostram ausência de atividade cerebral."
+        ],
+        ans: 1,
+        exp: "A similaridade e rigidez dos comportamentos disfuncionais leva observadores a avaliá-los como presos ao ciclo do transtorno."
+      },
+      {
+        id: 56,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Prevenção",
+        text: "Como a escola e a família podem contribuir para prevenir transtornos alimentares entre adolescentes?",
+        options: [
+          "Estimulando a comparação constante de peso entre os jovens.",
+          "Promovendo um ambiente de aceitação corporal, diálogo e combate a piadas estéticas.",
+          "Impondo dietas altamente restritivas no ambiente escolar.",
+          "Ignorando alterações bruscas de comportamento alimentar.",
+          "Proibindo a prática de exercícios físicos supervisionados."
+        ],
+        ans: 1,
+        exp: "Desconstruir a pressão por padrões estéticos rígidos e fortalecer a autoimagem saudável são passos chave na prevenção."
+      },
+      {
+        id: 57,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Anorexia e Bulimia",
+        text: "Anorexia e Bulimia são exemplos clássicos de transtornos alimentares frequentemente associados a:",
+        options: [
+          "Distorção severa da imagem corporal e medo intenso de engordar.",
+          "Desejo incontrolável de ganhar massa muscular sem dieta.",
+          "Aumento involuntário e repentino do apetite noturno sem sofrimento psíquico.",
+          "Alergias severas a alimentos industrializados.",
+          "Falta de paladar decorrente de infecções virais."
+        ],
+        ans: 0,
+        exp: "Ambos os transtornos envolvem grave preocupação com o peso, distorção da percepção do próprio corpo e métodos extremos de controle."
+      },
+      {
+        id: 58,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Faixa Etária de Risco",
+        text: "A pesquisa realizada na Espanha analisou a ocorrência de desordens alimentares na faixa etária entre:",
+        options: [
+          "0 e 5 anos.",
+          "6 e 18 anos.",
+          "25 e 40 anos.",
+          "50 e 65 anos.",
+          "Acima de 70 anos."
+        ],
+        ans: 1,
+        exp: "O estudo investigou crianças e adolescentes na faixa de 6 a 18 anos de idade."
+      },
+      {
+        id: 59,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Impacto da Mídia",
+        text: "As redes sociais e a mídia digital podem agravar episódios de comer transtornado quando:",
+        options: [
+          "Veiculam informações científicas validadas por médicos.",
+          "Exibem corpos idealizados com filtros e promovem dietas milagrosas sem respaldo profissional.",
+          "Incentivam a prática de esportes de forma saudável.",
+          "Divulgam receitas nutricionais equilibradas e acessíveis.",
+          "Oferecem apoio psicológico gratuito aos jovens."
+        ],
+        ans: 1,
+        exp: "A exposição contínua a padrões inalcançáveis e filtros digitais acentua a insatisfação corporal nos jovens."
+      },
+      {
+        id: 60,
+        cat: "saude",
+        tag: "Transtornos Alimentares - Síntese",
+        text: "A frase que melhor resume o alerta central trazido pelos especialistas no texto de apoio é:",
+        options: [
+          "O comer transtornado é inofensivo e não exige qualquer tipo de atenção.",
+          "O aumento de transtornos alimentares entre jovens é um problema grave e multifatorial que exige diagnóstico precoce e cuidado individualizado.",
+          "Transtornos alimentares afetam unicamente populações adultas de alta renda.",
+          "A cultura não possui interferência sobre a saúde física e mental dos jovens.",
+          "A compulsão alimentar é um comportamento normal que independe de tratamento."
+        ],
+        ans: 1,
+        exp: "A síntese destaca a gravidade, a multicausalidade e a necessidade de atenção médica/psicológica individualizada."
+      }
+    ];
+
+    // STATE VARIABLES
+    let currentFilter = 'all';
+    let userAnswers = {};
+    let timerInterval = null;
+    let secondsLeft = 7200; // 2 horas
+
+    // DOM INITIALIZATION
+    window.onload = () => {
+      renderQuestions();
+      startTimer();
+    };
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+      document.getElementById(viewId).classList.add('active');
+      
+      const navs = document.querySelectorAll('.nav-item');
+      if(viewId === 'dashboard') navs[0].classList.add('active');
+      if(viewId === 'learning') navs[1].classList.add('active');
+      if(viewId === 'exam') navs[2].classList.add('active');
+      if(viewId === 'performance') navs[3].classList.add('active');
+    }
+
+    function toggleModule(id) {
+      const el = document.getElementById(id);
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function filterQuestions(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      const container = document.getElementById('questions-container');
+      container.innerHTML = '';
+
+      const filtered = currentFilter === 'all' 
+        ? questions 
+        : questions.filter(q => q.cat === currentFilter);
+
+      filtered.forEach((q, idx) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        
+        let html = `
+          <span class="question-tag">${q.tag}</span>
+          <div class="question-text"><b>Questão ${q.id}:</b> ${q.text}</div>
+          <div class="options-list">
+        `;
+
+        q.options.forEach((opt, oIdx) => {
+          const letter = String.fromCharCode(65 + oIdx);
+          const isSelected = userAnswers[q.id] === oIdx;
+          const selectedClass = isSelected ? 'selected' : '';
+
+          html += `
+            <div class="option-item ${selectedClass}" id="q${q.id}-opt${oIdx}" onclick="selectOption(${q.id}, ${oIdx})">
+              <div class="option-prefix">${letter}</div>
+              <div>${opt}</div>
+            </div>
+          `;
+        });
+
+        html += `
+          </div>
+          <div class="explanation" id="exp-${q.id}">
+            <b>💡 Resolução / Gabarito Comentado:</b><br>${q.exp}
+          </div>
+        `;
+
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
+
+      updateProgress();
+    }
+
+    function selectOption(qId, optIdx) {
+      userAnswers[qId] = optIdx;
+      
+      // Update UI for this question's options
+      const q = questions.find(item => item.id === qId);
+      q.options.forEach((_, oIdx) => {
+        const el = document.getElementById(`q${qId}-opt${oIdx}`);
+        if(el) {
+          if(oIdx === optIdx) {
+            el.classList.add('selected');
+          } else {
+            el.classList.remove('selected');
+          }
+        }
+      });
+
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const answeredCount = Object.keys(userAnswers).length;
+      document.getElementById('progress-text').innerText = `${answeredCount} de 60 respondidas`;
+    }
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        if(secondsLeft <= 0) {
+          clearInterval(timerInterval);
+          finishExam();
+          return;
+        }
+        secondsLeft--;
+        const hrs = String(Math.floor(secondsLeft / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((secondsLeft % 3600) / 60)).padStart(2, '0');
+        const secs = String(secondsLeft % 60).padStart(2, '0');
+        document.getElementById('timer').innerText = `${hrs}:${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function finishExam() {
+      let scoreTotal = 0;
+      let scores = { portugues: 0, espanhol: 0, arte: 0, saude: 0 };
+
+      questions.forEach(q => {
+        const userAns = userAnswers[q.id];
+        const expEl = document.getElementById(`exp-${q.id}`);
+        
+        if(expEl) expEl.style.display = 'block';
+
+        q.options.forEach((_, oIdx) => {
+          const optEl = document.getElementById(`q${q.id}-opt${oIdx}`);
+          if(!optEl) return;
+
+          if(oIdx === q.ans) {
+            optEl.classList.add('correct');
+          }
+          if(userAns === oIdx && userAns !== q.ans) {
+            optEl.classList.add('incorrect');
+          }
+        });
+
+        if(userAns === q.ans) {
+          scoreTotal++;
+          scores[q.cat]++;
+        }
+      });
+
+      // Update Dashboard / Performance View
+      document.getElementById('final-score').innerText = `${scoreTotal} / 60`;
+      document.getElementById('score-portugues').innerText = `${scores.portugues} / 15`;
+      document.getElementById('score-espanhol').innerText = `${scores.espanhol} / 15`;
+      document.getElementById('score-arte').innerText = `${scores.arte} / 15`;
+      document.getElementById('score-saude').innerText = `${scores.saude} / 15`;
+
+      const pct = (scoreTotal / 60) * 100;
+      let msg = "Continue praticando para consolidar seus conhecimentos!";
+      if(pct >= 80) msg = "Excelente desempenho! Você está muito bem preparado(a)!";
+      else if(pct >= 50) msg = "Bom resultado! Revise os tópicos em que teve dúvidas na Central de Estudos.";
+      document.getElementById('score-message').innerText = msg;
+
+      clearInterval(timerInterval);
+      alert(`Simulado finalizado! Você acertou ${scoreTotal} de 60 questões (${pct.toFixed(1)}%). Os gabaritos comentados foram exibidos abaixo de cada questão.`);
+      switchView('performance');
+    }
+
+    function resetExam() {
+      if(confirm("Deseja realmente reiniciar o simulado? Suas respostas atuais serão limpas.")) {
+        userAnswers = {};
+        secondsLeft = 7200;
+        renderQuestions();
+        switchView('exam');
+      }
+    }
+  </script>
+</body>
+</html>
